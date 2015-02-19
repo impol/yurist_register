@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function yurist_register_menu() {
+  // Roles tab.
+  $items['admin/config/yurist_register'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('yurist_register_form'),
+    'title' => 'Yurist register settings',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Form callback.
+ */
+function yurist_register_form($form, $form_state) {
+  $days = array(
+    1 => t('Monday'),
+    2 => t('Tuesday'),
+    3 => t('Wednesday'),
+    4 => t('Thursday'),
+    5 => t('Friday'),
+    6 => t('Saturday'),
+    0 => t('Sunday'),
+  );
+
+  $results = array();
+
+  $default = variable_get('yurist_register_days', array());
+  foreach ($default as $key => $value) {
+    if ($value !== 0) {
+      $results[] = $key;
+    }
+  }
+
+  $form['yurist_register_days'] = array(
+    '#type' => 'checkboxes',
+    '#options' => $days,
+    '#default_value' => $results,
+    '#title' => t('When register form is opened.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_cron().
+ */
+function yurist_register_cron() {
+  $open = variable_get('yurist_register_days', array(0 => "0"));
+
+  $open_days = array();
+  if (!empty($open)) {
+    foreach ($open as $day) {
+      if ($day !== 0) {
+        $open_days[] = $day;
+      }
+    }
+  }
+
+  if (!empty($open_days)) {
+    $dw = date('w', REQUEST_TIME);
+    if (in_array($dw, $open_days) && variable_get('user_register') == 0) {
+      variable_set('user_register', 2);
+    }
+    elseif (!in_array($dw, $open_days) && variable_get('user_register') == 2) {
+      variable_set('user_register', 0);
+    }
+  }
+}

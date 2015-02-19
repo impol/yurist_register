@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function yurist_register_install() {
+  variable_set('yurist_register_days', array(0 => "0"));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function yurist_register_uninstall() {
+  variable_del('yurist_register_days');
+}

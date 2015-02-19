@@ -1,0 +1,4 @@
+name = Yurist Register
+description = Helps to manage registration form behavior
+core = 7.x
+version = 7.x-1.1
